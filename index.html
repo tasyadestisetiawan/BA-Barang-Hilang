@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Berita Acara Barang Hilang</title>
+    <style>
+      :root {
+        --bg: #eef1f4;
+        --card: #fff;
+        --ink: #1b2733;
+        --muted: #5d6b79;
+        --line: #d3dae1;
+        --accent: #1f4e79;
+        --err: #a32020;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font: 16px/1.5 system-ui, "Segoe UI", sans-serif;
+      }
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 24px 16px 48px;
+      }
+      h1 {
+        font-size: 1.6rem;
+        margin: 0 0 4px;
+      }
+      p.sub {
+        margin: 0 0 24px;
+        color: var(--muted);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        align-items: start;
+      }
+      @media (max-width: 760px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      section {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 20px;
+      }
+      h2 {
+        font-size: 1.05rem;
+        margin: 0 0 14px;
+      }
+      label {
+        display: block;
+        font-size: 0.9rem;
+        margin: 12px 0 4px;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 9px 10px;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        font: inherit;
+        background: #fff;
+      }
+      input:focus,
+      select:focus,
+      button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+      canvas {
+        width: 100%;
+        height: 150px;
+        border: 1px dashed var(--muted);
+        border-radius: 4px;
+        background: #fff;
+        touch-action: none;
+        display: block;
+      }
+      button {
+        font: inherit;
+        border: 0;
+        border-radius: 4px;
+        padding: 10px 16px;
+        cursor: pointer;
+      }
+      .primary {
+        background: var(--accent);
+        color: #fff;
+        margin-top: 16px;
+        width: 100%;
+      }
+      .ghost {
+        background: #e3e9ef;
+        color: var(--ink);
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 6px;
+        flex-wrap: wrap;
+      }
+      .err {
+        color: var(--err);
+        font-size: 0.9rem;
+        margin: 8px 0 0;
+        min-height: 1.3em;
+      }
+      .nomor {
+        border: 2px solid var(--accent);
+        color: var(--accent);
+        border-radius: 4px;
+        padding: 8px 12px;
+        display: inline-block;
+        font: 600 1.25rem/1.3 ui-monospace, Consolas, monospace;
+        margin: 8px 0 16px;
+      }
+      .doc h2 {
+        font-size: 1.25rem;
+        text-align: center;
+        margin: 0;
+      }
+      .doc .ttd {
+        margin-top: 28px;
+        width: 240px;
+        text-align: center;
+      }
+      .doc .ttd img {
+        width: 100%;
+        height: auto;
+        border-bottom: 1px solid var(--ink);
+      }
+      .aksi {
+        display: flex;
+        gap: 8px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+      .wrap {
+        overflow-x: auto;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 0.9rem;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 8px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+      td.no {
+        font-family: ui-monospace, Consolas, monospace;
+        white-space: nowrap;
+      }
+      .empty {
+        color: var(--muted);
+        padding: 12px 0;
+      }
+      @media print {
+        .noprint {
+          display: none !important;
+        }
+        body {
+          background: #fff;
+        }
+        section {
+          border: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1 class="noprint">Berita Acara Barang Hilang</h1>
+      <p class="sub noprint">
+        Isi laporan dan bubuhkan tanda tangan. Nomor surat muncul setelah
+        laporan dikirim.
+      </p>
+
+      <section id="hasil" hidden>
+        <div class="doc" id="dokumen"></div>
+        <div class="aksi noprint">
+          <button
+            class="primary"
+            style="margin: 0; width: auto"
+            id="cetak"
+            type="button"
+          >
+            Cetak / simpan PDF
+          </button>
+          <button class="ghost" id="baru" type="button">
+            Buat laporan baru
+          </button>
+        </div>
+      </section>
+
+      <div class="grid noprint" id="utama">
+        <section id="formWrap">
+          <h2>Laporan barang hilang</h2>
+          <form id="form">
+            <label for="platform">Platform</label>
+            <select id="platform" required></select>
+            <label for="brand">Brand</label>
+            <select id="brand" required></select>
+            <label for="tanggal">Tanggal kejadian</label>
+            <input type="date" id="tanggal" required />
+            <label for="total">Total barang hilang</label>
+            <input
+              type="number"
+              id="total"
+              min="1"
+              step="1"
+              inputmode="numeric"
+              placeholder="Contoh: 1500000"
+              required
+            />
+            <label for="nama">Nama penanda tangan</label>
+            <input id="nama" required />
+            <label>Tanda tangan</label>
+            <canvas id="ttd" aria-label="Area tanda tangan"></canvas>
+            <div class="row">
+              <span class="err" id="pesan" role="alert"></span
+              ><button class="ghost" id="hapusTtd" type="button">
+                Hapus tanda tangan
+              </button>
+            </div>
+            <button class="primary" type="submit">Kirim laporan</button>
+          </form>
+        </section>
+
+        <section>
+          <div class="row" style="margin: 0 0 12px">
+            <h2 style="margin: 0">Daftar laporan</h2>
+            <button class="ghost" id="unduh" type="button">Unduh CSV</button>
+          </div>
+          <div class="wrap" id="daftar"></div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      var KODE = "BA"; // kode di nomor surat, ganti sesuai instansi
+      var PLATFORM = ["Shopee", "Tokopedia", "Lazada", "TikTok Shop"]; // ubah daftar ini
+      var BRAND = ["Labore", "OMG", "Kahf"]; // ubah daftar ini
+      var KUNCI = "beritaAcaraHilang";
+      var BULAN = [
+        "Januari",
+        "Februari",
+        "Maret",
+        "April",
+        "Mei",
+        "Juni",
+        "Juli",
+        "Agustus",
+        "September",
+        "Oktober",
+        "November",
+        "Desember",
+      ];
+      var ROMAWI = [
+        "I",
+        "II",
+        "III",
+        "IV",
+        "V",
+        "VI",
+        "VII",
+        "VIII",
+        "IX",
+        "X",
+        "XI",
+        "XII",
+      ];
+      var data = [];
+      try {
+        data = JSON.parse(localStorage.getItem(KUNCI)) || [];
+      } catch (e) {
+        data = [];
+      }
+
+      function $(id) {
+        return document.getElementById(id);
+      }
+      function esc(t) {
+        return String(t).replace(/[&<>"']/g, function (c) {
+          return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+          }[c];
+        });
+      }
+      function isi(el, daftar) {
+        el.innerHTML =
+          '<option value="">Pilih...</option>' +
+          daftar
+            .map(function (x) {
+              return "<option>" + esc(x) + "</option>";
+            })
+            .join("");
+      }
+      function tglIndo(t) {
+        var p = t.split("-");
+        return Number(p[2]) + " " + BULAN[p[1] - 1] + " " + p[0];
+      }
+      function simpan() {
+        localStorage.setItem(KUNCI, JSON.stringify(data));
+      }
+
+      function urutanBerikut(tahun) {
+        var maks = 0;
+        data.forEach(function (s) {
+          if (s.tahun === tahun && s.urutan > maks) maks = s.urutan;
+        });
+        return maks + 1;
+      }
+      function buatNomor(urutan, tanggal) {
+        var p = tanggal.split("-");
+        return (
+          String(urutan).padStart(3, "0") +
+          "/" +
+          KODE +
+          "/" +
+          ROMAWI[p[1] - 1] +
+          "/" +
+          p[0]
+        );
+      }
+
+      /* ---- tanda tangan ---- */
+      var cv = $("ttd"),
+        cx = cv.getContext("2d"),
+        menggambar = false,
+        adaTtd = false;
+      function ukur() {
+        cv.width = cv.clientWidth;
+        cv.height = 150;
+        cx.lineWidth = 2;
+        cx.lineCap = "round";
+        cx.strokeStyle = "#1b2733";
+        adaTtd = false;
+      }
+      function titik(e) {
+        var r = cv.getBoundingClientRect();
+        return { x: e.clientX - r.left, y: e.clientY - r.top };
+      }
+      cv.addEventListener("pointerdown", function (e) {
+        menggambar = true;
+        var p = titik(e);
+        cx.beginPath();
+        cx.moveTo(p.x, p.y);
+        cv.setPointerCapture(e.pointerId);
+      });
+      cv.addEventListener("pointermove", function (e) {
+        if (!menggambar) return;
+        var p = titik(e);
+        cx.lineTo(p.x, p.y);
+        cx.stroke();
+        adaTtd = true;
+      });
+      cv.addEventListener("pointerup", function () {
+        menggambar = false;
+      });
+      $("hapusTtd").addEventListener("click", ukur);
+
+      /* ---- tampilan ---- */
+      function tampilDokumen(r) {
+        $("dokumen").innerHTML =
+          "<h2>BERITA ACARA BARANG HILANG</h2>" +
+          '<div style="text-align:center"><div class="nomor">' +
+          esc(r.nomor) +
+          "</div></div>" +
+          "<p>Pada tanggal <strong>" +
+          esc(tglIndo(r.tanggal)) +
+          "</strong> (bulan " +
+          esc(BULAN[r.tanggal.split("-")[1] - 1]) +
+          "), dilaporkan telah terjadi kehilangan barang pada platform <strong>" +
+          esc(r.platform) +
+          "</strong> untuk brand <strong>" +
+          esc(r.brand) +
+          "</strong> dengan total <strong>" +
+          esc(r.total) +
+          "</strong> barang.</p><p>Demikian berita acara ini dibuat dengan sebenarnya.</p>" +
+          '<div class="ttd">Pelapor,<img src="' +
+          r.ttd +
+          '" alt="Tanda tangan"><div>' +
+          esc(r.nama) +
+          "</div></div>";
+        $("hasil").hidden = false;
+        $("utama").hidden = true;
+        window.scrollTo(0, 0);
+      }
+
+      function tampilDaftar() {
+        var el = $("daftar");
+        if (!data.length) {
+          el.innerHTML = '<p class="empty">Belum ada laporan.</p>';
+          return;
+        }
+        var baris = data
+          .map(function (s, i) {
+            return { s: s, i: i };
+          })
+          .reverse()
+          .map(function (x) {
+            var s = x.s;
+            return (
+              "<tr><td class='no'>" +
+              esc(s.nomor) +
+              "</td><td>" +
+              esc(tglIndo(s.tanggal)) +
+              "</td><td>" +
+              esc(s.platform) +
+              "</td><td>" +
+              esc(s.brand) +
+              "</td><td>" +
+              esc(s.total) +
+              "</td><td><button class='ghost' data-i='" +
+              x.i +
+              "'>Lihat</button></td></tr>"
+            );
+          })
+          .join("");
+        el.innerHTML =
+          "<table><thead><tr><th>Nomor</th><th>Tanggal</th><th>Platform</th><th>Brand</th><th>Total</th><th></th></tr></thead><tbody>" +
+          baris +
+          "</tbody></table>";
+      }
+
+      $("daftar").addEventListener("click", function (e) {
+        var i = e.target.getAttribute("data-i");
+        if (i !== null) tampilDokumen(data[i]);
+      });
+
+      /* ---- kirim laporan ---- */
+      $("form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        if (!adaTtd) {
+          $("pesan").textContent = "Bubuhkan tanda tangan terlebih dahulu.";
+          return;
+        }
+        var tgl = $("tanggal").value,
+          tahun = Number(tgl.split("-")[0]),
+          urutan = urutanBerikut(tahun);
+        var r = {
+          urutan: urutan,
+          tahun: tahun,
+          nomor: buatNomor(urutan, tgl),
+          tanggal: tgl,
+          platform: $("platform").value,
+          brand: $("brand").value,
+          total: $("total").value,
+          nama: $("nama").value,
+          ttd: cv.toDataURL("image/png"),
+        };
+        data.push(r);
+        simpan();
+        tampilDaftar();
+        tampilDokumen(r);
+      });
+
+      $("baru").addEventListener("click", function () {
+        $("hasil").hidden = true;
+        $("utama").hidden = false;
+        $("form").reset();
+        $("tanggal").valueAsDate = new Date();
+        $("pesan").textContent = "";
+        ukur();
+      });
+      $("cetak").addEventListener("click", function () {
+        window.print();
+      });
+
+      $("unduh").addEventListener("click", function () {
+        var kolom = ["nomor", "tanggal", "platform", "brand", "total", "nama"];
+        var csv = [kolom.join(",")]
+          .concat(
+            data.map(function (s) {
+              return kolom
+                .map(function (k) {
+                  return '"' + String(s[k]).replace(/"/g, '""') + '"';
+                })
+                .join(",");
+            })
+          )
+          .join("\n");
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+        a.download = "daftar-berita-acara.csv";
+        a.click();
+      });
+
+      isi($("platform"), PLATFORM);
+      isi($("brand"), BRAND);
+      $("tanggal").valueAsDate = new Date();
+      ukur();
+      tampilDaftar();
+    </script>
+  </body>
+</html>
